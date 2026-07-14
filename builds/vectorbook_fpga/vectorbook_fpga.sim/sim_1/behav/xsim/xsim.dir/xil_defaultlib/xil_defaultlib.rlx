@@ -1,0 +1,7 @@
+0.6
+2019.2
+Nov  6 2019
+21:57:16
+C:/Users/Keahi/vectorbook-fpga/builds/vectorbook_fpga/vectorbook_fpga.sim/sim_1/behav/xsim/glbl.v,1573089660,verilog,,,,glbl,,,,,,,,
+C:/Users/Keahi/vectorbook-fpga/rtl/fundamentals/quote_rx_5byte_ready.sv,1784051447,systemVerilog,,C:/Users/Keahi/vectorbook-fpga/tb/quote_rx_5byte_ready_tb.sv,,quote_rx_5byte_ready,,,,,,,,
+C:/Users/Keahi/vectorbook-fpga/tb/quote_rx_5byte_ready_tb.sv,1784052776,systemVerilog,,,,quote_rx_5byte_ready_tb,,,,,,,,

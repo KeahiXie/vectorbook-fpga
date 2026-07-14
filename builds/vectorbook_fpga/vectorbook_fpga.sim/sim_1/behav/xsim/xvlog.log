@@ -1,0 +1,4 @@
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/Keahi/vectorbook-fpga/rtl/fundamentals/quote_rx_5byte_ready.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module quote_rx_5byte_ready
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/Keahi/vectorbook-fpga/tb/quote_rx_5byte_ready_tb.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module quote_rx_5byte_ready_tb
