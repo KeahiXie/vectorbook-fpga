@@ -17,7 +17,10 @@ module quote_rx_5byte_ready(
 logic[2:0] byte_index;
 logic[7:0] price_b3, price_b2, price_b1;
 logic cooldown;
+
 assign ready = !cooldown;
+
+
 
 
 always_ff @(posedge clk) begin
@@ -71,5 +74,4 @@ always_ff @(posedge clk) begin
                 end
         
  endmodule       
-    
     
