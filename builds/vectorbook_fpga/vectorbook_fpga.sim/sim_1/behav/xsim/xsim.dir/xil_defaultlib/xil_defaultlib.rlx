@@ -3,5 +3,9 @@
 Nov  6 2019
 21:57:16
 C:/Users/Keahi/vectorbook-fpga/builds/vectorbook_fpga/vectorbook_fpga.sim/sim_1/behav/xsim/glbl.v,1573089660,verilog,,,,glbl,,,,,,,,
+C:/Users/Keahi/vectorbook-fpga/rtl/fundamentals/mini_market_top.sv,1784138793,systemVerilog,,C:/Users/Keahi/vectorbook-fpga/rtl/fundamentals/one_symbol_book.sv,,mini_market_top,,,,,,,,
+C:/Users/Keahi/vectorbook-fpga/rtl/fundamentals/one_symbol_book.sv,1784138793,systemVerilog,,C:/Users/Keahi/vectorbook-fpga/rtl/fundamentals/quote7_parser.sv,,one_symbol_book,,,,,,,,
+C:/Users/Keahi/vectorbook-fpga/rtl/fundamentals/quote7_parser.sv,1784138793,systemVerilog,,C:/Users/Keahi/vectorbook-fpga/tb/mini_market_top_tb.sv,,quote7_parser,,,,,,,,
 C:/Users/Keahi/vectorbook-fpga/rtl/fundamentals/quote_rx_5byte_ready.sv,1784051447,systemVerilog,,C:/Users/Keahi/vectorbook-fpga/tb/quote_rx_5byte_ready_tb.sv,,quote_rx_5byte_ready,,,,,,,,
+C:/Users/Keahi/vectorbook-fpga/tb/mini_market_top_tb.sv,1784144298,systemVerilog,,,,mini_market_top_tb,,,,,,,,
 C:/Users/Keahi/vectorbook-fpga/tb/quote_rx_5byte_ready_tb.sv,1784052776,systemVerilog,,,,quote_rx_5byte_ready_tb,,,,,,,,

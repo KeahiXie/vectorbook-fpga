@@ -1,0 +1,12 @@
+# compile verilog/system verilog design source files
+sv xil_defaultlib  \
+"../../../../../../rtl/fundamentals/mini_market_top.sv" \
+"../../../../../../rtl/fundamentals/one_symbol_book.sv" \
+"../../../../../../rtl/fundamentals/quote7_parser.sv" \
+"../../../../../../tb/mini_market_top_tb.sv" \
+
+# compile glbl module
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort

@@ -1,15 +1,19 @@
 Vivado Simulator 2019.2
 Copyright 1986-1999, 2001-2019 Xilinx, Inc. All Rights Reserved.
-Running: E:/Vivado/2019.2/bin/unwrapped/win64.o/xelab.exe -wto b0c0ee69f1a7466fb7167211d7d0e60c --incr --debug typical --relax --mt 2 -L xil_defaultlib -L unisims_ver -L unimacro_ver -L secureip --snapshot quote_rx_5byte_ready_tb_behav xil_defaultlib.quote_rx_5byte_ready_tb xil_defaultlib.glbl -log elaborate.log 
+Running: E:/Vivado/2019.2/bin/unwrapped/win64.o/xelab.exe -wto b0c0ee69f1a7466fb7167211d7d0e60c --incr --debug typical --relax --mt 2 -L xil_defaultlib -L unisims_ver -L unimacro_ver -L secureip --snapshot mini_market_top_tb_behav xil_defaultlib.mini_market_top_tb xil_defaultlib.glbl -log elaborate.log 
 Using 2 slave threads.
 Starting static elaboration
 Pass Through NonSizing Optimizer
 Completed static elaboration
 Starting simulation data flow analysis
-WARNING: [XSIM 43-4099] "C:/Users/Keahi/vectorbook-fpga/rtl/fundamentals/quote_rx_5byte_ready.sv" Line 1. Module quote_rx_5byte_ready doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "C:/Users/Keahi/vectorbook-fpga/rtl/fundamentals/mini_market_top.sv" Line 8. Module mini_market_top doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "C:/Users/Keahi/vectorbook-fpga/rtl/fundamentals/quote7_parser.sv" Line 3. Module quote7_parser doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "C:/Users/Keahi/vectorbook-fpga/rtl/fundamentals/one_symbol_book.sv" Line 18. Module one_symbol_book doesn't have a timescale but at least one module in design has a timescale.
 Completed simulation data flow analysis
 Time Resolution for simulation is 1ps
-Compiling module xil_defaultlib.quote_rx_5byte_ready
-Compiling module xil_defaultlib.quote_rx_5byte_ready_tb
+Compiling module xil_defaultlib.quote7_parser
+Compiling module xil_defaultlib.one_symbol_book
+Compiling module xil_defaultlib.mini_market_top
+Compiling module xil_defaultlib.mini_market_top_tb
 Compiling module xil_defaultlib.glbl
-Built simulation snapshot quote_rx_5byte_ready_tb_behav
+Built simulation snapshot mini_market_top_tb_behav
