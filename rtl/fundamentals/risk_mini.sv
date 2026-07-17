@@ -71,7 +71,7 @@ module risk_mini(
             
         end else begin
             order_valid <= 1'b0;
-            
+            rejected_reason <= 2'd0;
         end
 
 
