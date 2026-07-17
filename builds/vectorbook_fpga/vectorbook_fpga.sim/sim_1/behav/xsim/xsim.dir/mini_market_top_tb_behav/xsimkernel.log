@@ -1,4 +1,0 @@
-Running: xsim.dir/mini_market_top_tb_behav/xsimk.exe -simmode gui -wdb mini_market_top_tb_behav.wdb -simrunnum 0 -socket 52947
-Design successfully loaded
-Design Loading Memory Usage: 8252 KB (Peak: 8252 KB)
-Design Loading CPU Usage: 30 ms

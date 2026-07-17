@@ -1,8 +1,0 @@
-INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/Keahi/vectorbook-fpga/rtl/fundamentals/mini_market_top.sv" into library xil_defaultlib
-INFO: [VRFC 10-311] analyzing module mini_market_top
-INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/Keahi/vectorbook-fpga/rtl/fundamentals/one_symbol_book.sv" into library xil_defaultlib
-INFO: [VRFC 10-311] analyzing module one_symbol_book
-INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/Keahi/vectorbook-fpga/rtl/fundamentals/quote7_parser.sv" into library xil_defaultlib
-INFO: [VRFC 10-311] analyzing module quote7_parser
-INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/Keahi/vectorbook-fpga/tb/mini_market_top_tb.sv" into library xil_defaultlib
-INFO: [VRFC 10-311] analyzing module mini_market_top_tb
