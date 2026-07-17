@@ -29,6 +29,7 @@ module strategy_risk_mini_tb ();
     logic[15:0] order_price ;
     logic[7:0] out_order_quantity ;
     logic[1:0] rejected_reason;
+    logic V1, V2, V3, V4, V5, V6;
 
 
     // clock generator
@@ -89,15 +90,35 @@ module strategy_risk_mini_tb ();
         book_update       <= 1'b0;
 
     endtask
-
+    
+    // new function for seeing the sim result in console instead of through waveforms 
+    task check_order(
+        input logic exp_valid,
+        input logic exp_side,
+        input logic[1:0] exp_reason,
+        input string label
+    );
+    
+        if ((exp_valid !== order_valid) || 
+            (rejected_reason !== exp_reason) || 
+            (exp_valid && (exp_side !== order_side))  )begin
+            $display("FAIL[%s]: valid=%b, side=%b, reason=%d", label, order_valid, order_side, rejected_reason);
+        end else
+            $display("PASS[%s]", label);
+        
+    
+    endtask
+    
     initial begin
 
         // reset
         rst <= 1'b1;
         book_update <= 1'b0;
         book_valid  <= 1'b0;
-        repeat(2) @(posedge clk)
+        repeat(2) @(posedge clk);
         rst <= 1'b0;
+        
+        book_valid <= 1'b1;
 
         // strategy mini config
         min_spread <= 5;
@@ -111,40 +132,71 @@ module strategy_risk_mini_tb ();
         trading_enable <= 1;
         kill_switch <= 0;
 
-        // V1: bid 1000/120, ask 1020/40 -> accept, buy, reason=0
+                // V1: bid 1000/120, ask 1020/40 -> accept, buy, reason=0
+        V1 <= 1'b1;
         send_book_update(16'h03E8, 8'h78, 16'h03FC, 8'h28);
+        repeat(1) @(posedge clk);
+        #1;
+        check_order(1'b1, 1'b0, 2'd0, "V1 buy accepted");
+        V1 <= 1'b0;
 
         // V2: bid 1000/40, ask 1010/130 -> accept, sell, reason=0
+        V2 <= 1'b1;
         send_book_update(16'h03E8, 8'h28, 16'h03F2, 8'h82);
+        repeat(1) @(posedge clk);
+        #1;
+        check_order(1'b1, 1'b1, 2'd0, "V2 sell accepted");
+        V2 <= 1'b0;
 
         // V3: bid 1000/100, ask 1002/100 -> no order (spread=2 < 5)
+        V3 <= 1'b1;
         send_book_update(16'h03E8, 8'h64, 16'h03EA, 8'h64);
-        
-        // V4: kill switch is on -> no order, resason = 2 
+        repeat(2) @(posedge clk);
+        #1;
+        check_order(1'b0, 1'b0, 2'd0, "V3 spread too small, silent");
+        V3 <= 1'b0;
+
+        // V4: kill switch is on -> no order, reason = 2
+        V4 <= 1'b1;
         repeat(2) @(posedge clk);
         kill_switch <= 1'b1;
         threshold_numerator <= 1;
         threshold_denominator <= 1;
         send_book_update(16'h03E8, 8'h78, 16'h03FC, 8'h28);
+        repeat(1) @(posedge clk);
+        #1;
+        check_order(1'b0, 1'b0, 2'd2, "V4 killed");
+        V4 <= 1'b0;
 
-        // V5: order more than what its allowed -> no order, reason = 1 
-        s_order_quantity = 150;
+        // V5: order more than allowed -> no order, reason = 3
+        V5 <= 1'b1;
+        kill_switch <= 1'b0;
+        s_order_quantity <= 150;
         send_book_update(16'h03E8, 8'h78, 16'h03FC, 8'h28);
+        repeat(1) @(posedge clk);
+        #1;
+        check_order(1'b0, 1'b0, 2'd3, "V5 over max quantity");
+        V5 <= 1'b0;
 
-        // V6: tie - no proposal 
+        // V6: tie - no proposal at all
+        V6 <= 1'b1;
         send_book_update(16'h03E8, 8'h32, 16'h03F2, 8'h32);
+        repeat(2) @(posedge clk);
+        #1;
+        check_order(1'b0, 1'b0, 2'd0, "V6 tie, silent");
+        V6 <= 1'b0;
 
+        // T2: spread exactly == min_spread (1000 -> 1005) -> proposal fires (>= inclusive)
+        s_order_quantity <= 8'd50;
+        send_book_update(16'h03E8, 8'h78, 16'h03ED, 8'h28);
+        repeat(1) @(posedge clk);
+        #1;
+        check_order(1'b1, 1'b0, 2'd0, "T2 boundary spread==min, buy accepted");
 
-        
+        repeat(4) @(posedge clk);
+        $finish;
 
-
-        
-
-        
-
-
-
-
+       
     end
 
 endmodule
