@@ -3,12 +3,12 @@
 module phase_1_top_tb #(
     parameter int PRICE_WIDTH = 32,
     parameter int QUANTITY_WIDTH = 16,
-    parameter int NUM_SYMBOLS = 8
+    parameter int NUM_SYMBOLS = 4
 ) ();
 
     // clk generator
     logic clk = 0;
-    always #5 clk = ~clk;
+    always #4 clk = ~clk;
 
     logic rst;
 

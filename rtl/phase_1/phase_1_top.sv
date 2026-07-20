@@ -1,5 +1,5 @@
 module phase_1_top #(
-    parameter int NUM_SYMBOLS = 8,
+    parameter int NUM_SYMBOLS = 4,
     parameter int PRICE_WIDTH = 32,
     parameter int QUANTITY_WIDTH = 16
 ) (
