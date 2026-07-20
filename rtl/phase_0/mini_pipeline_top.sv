@@ -25,21 +25,7 @@ module mini_pipeline_top (
     input  logic        kill_switch,
     input  logic [7:0]  max_quantity,
 
-    // Book observation outputs
-    output logic        book_valid,
-    output logic        book_update,
-    output logic [15:0] best_bid_price,
-    output logic [7:0]  best_bid_quantity,
-    output logic [15:0] best_ask_price,
-    output logic [7:0]  best_ask_quantity,
-
-    // Strategy observation outputs
-    output logic        proposal_valid,
-    output logic        proposal_side,
-    output logic [15:0] proposal_price,
-    output logic [7:0]  proposal_quantity,
-
-    // Final risk-approved order outputs
+    // Final risk-approved order
     output logic        order_valid,
     output logic        order_side,
     output logic [15:0] order_price,
@@ -47,7 +33,7 @@ module mini_pipeline_top (
     output logic [1:0]  rejected_reason
 );
 
-    // Parser -> book event wires
+    // Parser -> book
     logic [7:0]  event_symbol;
     logic        event_valid;
     logic [15:0] event_bid_price;
@@ -55,9 +41,21 @@ module mini_pipeline_top (
     logic [15:0] event_ask_price;
     logic [7:0]  event_ask_quantity;
 
-    //-------------------------------------------------------------------------
-    // Stage 1: Convert seven incoming bytes into one complete quote event.
-    //-------------------------------------------------------------------------
+    // Book -> strategy
+    logic        book_valid;
+    logic        book_update;
+    logic [15:0] best_bid_price;
+    logic [7:0]  best_bid_quantity;
+    logic [15:0] best_ask_price;
+    logic [7:0]  best_ask_quantity;
+
+    // Strategy -> risk
+    logic        proposal_valid;
+    logic        proposal_side;
+    logic [15:0] proposal_price;
+    logic [7:0]  proposal_quantity;
+
+    // Stage 1: Assemble seven incoming bytes into one complete quote event.
     quote7_parser parser (
         .clk                (clk),
         .rst                (rst),
@@ -72,9 +70,7 @@ module mini_pipeline_top (
         .event_ask_quantity (event_ask_quantity)
     );
 
-    //-------------------------------------------------------------------------
-    // Stage 2: Store the latest quote for the selected symbol.
-    //-------------------------------------------------------------------------
+    // Stage 2: Store the latest quote for symbol 8'h02.
     one_symbol_book book (
         .clk                (clk),
         .rst                (rst),
@@ -92,9 +88,7 @@ module mini_pipeline_top (
         .best_ask_quantity  (best_ask_quantity)
     );
 
-    //-------------------------------------------------------------------------
-    // Stage 3: Generate a buy or sell proposal from the updated book.
-    //-------------------------------------------------------------------------
+    // Stage 3: Generate a proposed order from the updated book.
     strategy_mini strategy (
         .clk                   (clk),
         .rst                   (rst),
@@ -114,9 +108,7 @@ module mini_pipeline_top (
         .proposal_quantity     (proposal_quantity)
     );
 
-    //-------------------------------------------------------------------------
-    // Stage 4: Accept or reject the strategy proposal using risk controls.
-    //-------------------------------------------------------------------------
+    // Stage 4: Accept or reject the proposal using the risk controls.
     risk_mini risk (
         .clk               (clk),
         .rst               (rst),

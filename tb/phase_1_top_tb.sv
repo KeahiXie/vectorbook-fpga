@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-module phase_1_top #(
+module phase_1_top_tb #(
     parameter int PRICE_WIDTH = 32,
     parameter int QUANTITY_WIDTH = 16,
     parameter int NUM_SYMBOLS = 8
@@ -41,18 +41,21 @@ module phase_1_top #(
         input logic[PRICE_WIDTH-1:0] bid_price,
         input logic[QUANTITY_WIDTH-1:0] bid_qty,
         input logic[PRICE_WIDTH-1:0] ask_price,
-        input logic[QUANTITY_WIDTH-1:0] ask_qty,
+        input logic[QUANTITY_WIDTH-1:0] ask_qty
     );
         send_byte(symbol);
         for (int b = PRICE_WIDTH-8; b>=0; b-=8) send_byte(bid_price[b +: 8]);
-        for (int b = PRICE_WIDTH-8; b>=0; b-=8) send_byte(ask_price[b +: 8]);
         for (int b = QUANTITY_WIDTH-8; b>=0; b-=8) send_byte(bid_qty[b +: 8]);
+        for (int b = PRICE_WIDTH-8; b>=0; b-=8) send_byte(ask_price[b +: 8]);
         for (int b = QUANTITY_WIDTH-8; b>=0; b-=8) send_byte(ask_qty[b +: 8]);
+        
+        byte_valid = 1'b0;
+        data_in    = 8'h00;
     endtask
 
 
     task check_order(
-        input int idx, input time t_captured,
+        input int idx,
         input logic exp_valid, input logic exp_side, input logic [1:0] exp_reason,
         input string label
     );
@@ -60,7 +63,7 @@ module phase_1_top #(
     latency = 0;
 
     // latency count
-    while (!order_valid[idx]) begin
+    while (!order_valid[idx] && latency < 40) begin
         @(posedge clk);
         latency++;
     end
@@ -117,9 +120,9 @@ module phase_1_top #(
         threshold_denominator <= 1;order_quantity <= 50; 
         max_quantity <= 100; trading_enable <= 1; kill_switch <= 0;
 
-        // V1 analog â€” symbol 3, bid 1000/120, ask 1020/40 -> buy accepted
-        send_message(8'd3, 1000, 120, 1020, 40, t0);
-        check_order(3, t0, 1'b1, 1'b0, 2'd0, "V1 buy accepted, symbol 3");
+        // V1 analog ” symbol 3, bid 1000/120, ask 1020/40 -> buy accepted
+        send_message(8'd3, 1000, 120, 1020, 40);
+        check_order(3, 1'b1, 1'b0, 2'd0, "V1 buy accepted, symbol 3");
         $display("V1 full-chain latency: %0d cycles", ($time - t0)/10);
 
         repeat(4) @(posedge clk);
