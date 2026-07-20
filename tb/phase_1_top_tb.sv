@@ -30,6 +30,8 @@ module phase_1_top_tb #(
     logic [1:0]                rejected_reason    [NUM_SYMBOLS];
 
     task send_byte(input logic [7:0] b);
+    
+        @(negedge clk);
         data_in    = b;
         byte_valid = 1'b1;
         @(posedge clk);
@@ -49,6 +51,7 @@ module phase_1_top_tb #(
         for (int b = PRICE_WIDTH-8; b>=0; b-=8) send_byte(ask_price[b +: 8]);
         for (int b = QUANTITY_WIDTH-8; b>=0; b-=8) send_byte(ask_qty[b +: 8]);
         
+        @(posedge clk);
         byte_valid = 1'b0;
         data_in    = 8'h00;
     endtask
