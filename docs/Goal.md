@@ -22,12 +22,12 @@
 
 ## Phase 1: Scale the Datapath From 1 Symbol/16-Bit to 8 Symbols/32-Bit 
 
-- [ ] **Phase 1.1:** Implement and verify a fixed 8-symbol, 32-bit datapath **[M]**
-- [ ] **Phase 1.2:** Refactor the design so the number of symbols is configurable using `NUM_SYMBOLS` **[M]**
-- [ ] **Phase 1.3:** _Test multiple configurations, such as 1, 4, 8, and 16 symbols_ **[S]**
+- [X] **Phase 1.1:** ~~Implement and verify a fixed 8-symbol, 32-bit datapath **[M]**~~ implemented 4 symbols version
+- [X] **Phase 1.2:** Refactor the design so the number of symbols is configurable using `NUM_SYMBOLS` **[M]**
+- [X] **Phase 1.3:** _Test multiple configurations, such as 1, 4, 8, and 16 symbols_ **[S]**
 - [ ] **Phase 1.5:** _Consider multiple parallel parser lanes and simultaneous book updates_ **[L]**
-- [ ] **Phase 1.6:** Deploy this version using an internal test generator, UART, LEDs, or ILA **[S, depends on board access]**
-- [ ] **Phase 1.7:** Compare latency, timing, and resource usage against Phase 0 **[M]**
+- [ ] **Phase 1.6:** ~~Deploy this version using an internal test generator, UART, LEDs, or ILA **[S, depends on board access]**~~(POSTPONE)
+- [X] **Phase 1.7:** Compare latency, timing, and resource usage against Phase 0 **[M]** (note: ETA latency and sim latency secured)
 
 ## Phase 2: Add Valid/Ready Flow Control, FIFOs, and One Real Clock-Domain Crossing
 

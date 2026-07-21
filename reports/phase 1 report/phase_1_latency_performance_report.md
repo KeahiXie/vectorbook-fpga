@@ -80,11 +80,51 @@ See `vectorbook-fpga/reports/waveforms`
 - `order_quantity_out[3] = 50`
 - Result: **PASS**
 
-## 3. Synthesis and Implementation
-- FPGA target
-- LUT/FF/BRAM/DSP usage
-- Timing summary
-- Maximum frequency
+## 3. Core Synthesis Results
+
+The Phase 1 trading core was synthesized using:
+
+- Vivado 2019.2
+- Top module: `phase_1_top`
+- Target device: `xc7z010clg400-1`
+- Target clock frequency: `125 MHz`
+- Target clock period: `8 ns`
+
+#### 3.1 Resource Utilization
+
+| Resource | Used | Available | Utilization |
+|---|---:|---:|---:|
+| Slice LUTs | 558 | 17,600 | 3.17% |
+| Slice registers | 864 | 35,200 | 2.45% |
+| I/O | 302 | 100 | 302.00% |
+| Block RAM tiles | 0 | 60 | 0.00% |
+| DSP48E1 blocks | 16 | 80 | 20.00% |
+| BUFG clock buffers | 1 | 32 | 3.13% |
+
+
+#### 3.2 Synthesis Result
+
+- Synthesis status: **PASS**
+- Latches inferred: `0`
+- Black boxes: `0`
+- LUT memory inferred: `0`
+- BRAM inferred: `0`
+- DSP blocks inferred: `16`
+
+The trading logic uses a small percentage of the available LUT and register resources. The strategy array uses 16 DSP blocks for arithmetic operations.
+
+#### 3.3 I/O Limitation
+
+The synthesized core contains:
+
+- Bonded I/O required: `302`
+- Bonded I/O available: `100`
+- I/O utilization: `302%`
+
+The trading core fits within the FPGA logic resources, but `phase_1_top` cannot be used directly as the physical board-level top module because its parallel interface requires more package pins than the target device provides.
+
+A board wrapper will keep the large trading-core interface internal and expose only the clock, reset, control, and observation interfaces required for hardware testing.
+
 
 ## 4. Hardware Validation
 - Board and clock
