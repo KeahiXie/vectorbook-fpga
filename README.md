@@ -2,11 +2,13 @@
 
 NanoTrader is an FPGA-based low-latency trading system that processes NASDAQ ITCH 5.0 market data through a custom Ethernet/UDP receive and parsing pipeline, maintains an order book in hardware, evaluates trading logic, performs risk checks, and generates orders. The project targets a fully streaming 10 Gb/s architecture implemented in SystemVerilog, with cycle-accurate latency measurement and eventual FPGA-versus-C++ benchmarking under identical replay workloads.
 
-> **Project status:** In active development  
-> **Target platform:** Digilent Zybo Z7-10 for core pipeline development 
-> **Future platform:** Higher-throughput FPGA platform with 10 GbE support
-> **Current clock target:** 125 MHz  
-> **Primary language:** SystemVerilog
+| Project Information | Details |
+|---|---|
+| **Status** | In active development |
+| **Current platform** | Digilent Zybo Z7-10 |
+| **Future platform** | FPGA platform with native 10 GbE support |
+| **Clock target** | 125 MHz |
+| **Language** | SystemVerilog |
 
 
 *Last updated: July 31, 2026*
