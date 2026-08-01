@@ -45,7 +45,7 @@ module order_level_p3 #(
     
     parameter int TABLE_DEPTH = 128,
     parameter int ADDR_WIDTH = $clog2(TABLE_DEPTH),
-    parameter int ENTRY_WIDTH = 16 + 1 + PRICE_WIDTH + QUANTITY_WIDTH + COUNT_WIDTH + 7
+    parameter int ENTRY_WIDTH = 8 + 1 + PRICE_WIDTH + QUANTITY_WIDTH + COUNT_WIDTH + 7
 )(
     input logic clk,
     input logic rst,
@@ -54,7 +54,7 @@ module order_level_p3 #(
     input  logic                     order_level_valid,
     output logic                     order_level_ready,
 
-    input  logic [15:0]              order_level_symbol,
+    input  logic [7:0]               order_level_symbol,
     input  logic                     order_level_side,
     input  logic [PRICE_WIDTH-1:0]   order_level_price,
     input  logic signed [QUANTITY_WIDTH:0] order_level_quantity,
@@ -89,8 +89,8 @@ module order_level_p3 #(
     output logic [3:0] error_code
 );
 
-    localparam int PROBE_INDEX_WIDTH = (NUM_PROBES <= 1) ? 1 : $clog2(NUM_PROBES);
-    localparam int SYMBOL_INDEX_WIDTH = (NUM_SYMBOLS <= 1) ? 1 : $clog2(NUM_SYMBOLS);
+    localparam int PROBE_INDEX_WIDTH = $clog2(NUM_PROBES);
+    localparam int SYMBOL_INDEX_WIDTH = $clog2(NUM_SYMBOLS);
 
     localparam logic [QUANTITY_WIDTH-1:0] MAX_QUANTITY = '1;
     localparam logic [COUNT_WIDTH-1:0] MAX_ORDER_COUNT = '1;
@@ -98,13 +98,13 @@ module order_level_p3 #(
     localparam logic [PROBE_INDEX_WIDTH-1:0] LAST_PROBE_INDEX =
         PROBE_INDEX_WIDTH'(NUM_PROBES - 1);
 
-    localparam logic [15:0] NUM_SYMBOLS_LIMIT =
-        16'(NUM_SYMBOLS);
+    localparam logic [7:0] NUM_SYMBOLS_LIMIT =
+        8'(NUM_SYMBOLS);
 
 
     //structure decelation
     typedef struct packed {
-        logic [15:0]                   symbol;
+        logic [7:0]                    symbol;
         logic                          side;
         logic [PRICE_WIDTH-1:0]        price;
         logic [QUANTITY_WIDTH-1:0]     total_quantity;
@@ -156,7 +156,7 @@ module order_level_p3 #(
     level_operation_t operation_reg;
    
     // Registers for incoming update
-    logic [15:0]                symbol_reg;
+    logic [7:0]                 symbol_reg;
     logic                       side_reg;
     logic [PRICE_WIDTH-1:0]     price_reg;
     logic [QUANTITY_WIDTH-1:0]  quantity_reg;
@@ -198,26 +198,24 @@ module order_level_p3 #(
     // but it will only introduce latency to the write path
     // not the read path for strategy module to read
     function automatic logic [ADDR_WIDTH-1:0] hash_order_level(
-        input logic [15:0] symbol, input logic side, 
+        input logic [7:0] symbol, input logic side, 
         input logic [PRICE_WIDTH-1:0] price
     );
 
-    logic [55:0] padded_key;
+    logic [41:0] padded_key;
 
     begin 
-        // original key is 49 bits: {symbol, side, price}
-        // add seven zeros to make it 56 bits, which can be divided into eight 7-bit chunks
+        // original key is 41 bits: {symbol, side, price}
+        // add one zero to make it 42 bits, which can be divided into six 7-bit chunks
 
-        padded_key = {7'b0, symbol, side, price};
+        padded_key = {1'b0, symbol, side, price};
 
         hash_order_level = padded_key[6:0]
                         ^ padded_key[13:7]
                         ^ padded_key[20:14]
                         ^ padded_key[27:21]
                         ^ padded_key[34:28]
-                        ^ padded_key[41:35]
-                        ^ padded_key[48:42]
-                        ^ padded_key[55:49];
+                        ^ padded_key[41:35];
     end
     endfunction
 
@@ -518,10 +516,23 @@ always_ff @(posedge clk) begin
 
                         // remove the entire level if this is the final order
                         else if(current_entry_reg.order_count == 1) begin
-                            next_entry_reg <= '0;
-                            next_entry_valid_reg <= 1'b0;
+                            if(quantity_reg != current_entry_reg.total_quantity) begin
+                                error_code_reg <= ERR_INCONSISTENT_LEVEL;
+                                state <= ST_DONE;
+                            end
 
-                            state <= ST_WRITE;
+                            else begin
+                                next_entry_reg <= '0;
+                                next_entry_valid_reg <= 1'b0;
+
+                                state <= ST_WRITE;
+                            end
+                            
+                        end
+
+                        else if(quantity_reg == current_entry_reg.total_quantity) begin
+                            error_code_reg <= ERR_INCONSISTENT_LEVEL;
+                            state <= ST_DONE;
                         end
 
                         // subtract the removed order from the price level

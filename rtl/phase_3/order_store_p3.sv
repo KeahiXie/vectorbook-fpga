@@ -25,7 +25,12 @@ Order_level: each order from NASDAQ
 Per-symbol info: 
 total order numbers on bid/ask
 top 10 price level on each side with 
-top 10 price level on each side with 
+top 10 price level on each side with
+
+Cycles for Replace: IDLE -> READ_REQUEST -> WAIT_FOR_READ -> CHECK -> MODIFY(phase0)
+        (13 cycles) READ_REQUEST -> WAIT_FOR_READ -> CHECK -> MODIFY(phase1) ->
+                    ORDER_LEVEL → WRITE → ORDER_LEVEL → DONE
+
 
 
 
@@ -84,6 +89,7 @@ module order_store_p3 #(
 
     input logic [2:0]              event_operation,
     input logic [63:0]             event_order_id,
+    input logic [63:0]              event_new_order_id,
     input logic [7:0]              event_symbol,
     input logic                       event_side,
     input logic [31:0]             event_price,
@@ -163,11 +169,22 @@ module order_store_p3 #(
         logic [31:0] quantity;
         logic [6:0]  padding;
     } order_entry_t;
-    logic[63:0] order_id_reg;
+
+    logic[63:0] order_id_reg; 
+    logic[63:0] new_order_id_reg; // replacement id from the parser
     logic[7:0] symbol_reg;
     logic side_reg;
     logic[31:0] price_reg;
     logic[31:0] quantity_reg;
+
+    order_entry_t replace_old_entry_reg; // saves old data for old entry
+    logic [ADDR_WIDTH-1:0] replace_old_addr_reg; // remember where the old order lives
+    logic [BANK_INDEX_WIDTH-1:0] replace_old_bank_reg; // remember which bank holds the old order
+    logic [BANK_INDEX_WIDTH-1:0] replace_new_bank_reg; // remembers where the replacement will be written
+
+    logic replace_phase_reg; // 0 for looking up the old order and 1 for the new order
+
+
     
     // opreation
     typedef enum logic [2:0] {
@@ -311,6 +328,13 @@ module order_store_p3 #(
             order_level_quantity_reg    <= '0;
             order_level_order_count_reg <= '0;
 
+            // registers for replace
+            replace_old_entry_reg <= '0;
+            replace_old_addr_reg  <= '0;
+            replace_old_bank_reg  <= '0;
+            replace_new_bank_reg  <= '0;
+            new_order_id_reg <= '0;
+
 
 
 
@@ -326,10 +350,13 @@ module order_store_p3 #(
                     if (event_valid && event_ready) begin
                         op_reg       <= operation_t'(event_operation);
                         order_id_reg <= event_order_id;
+                        new_order_id_reg <= event_new_order_id;
                         symbol_reg   <= event_symbol;
                         side_reg     <= event_side;
                         price_reg    <= event_price;
                         quantity_reg <= event_quantity; 
+
+                        replace_phase_reg <= 1'b0;
 
                         lookup_addr <= hash_order_id(event_order_id);
 
@@ -556,6 +583,83 @@ module order_store_p3 #(
                             end
                         end
 
+                        OP_REPLACE: begin
+                            // Phase 0: first the old order
+                            if(!replace_phase_reg) begin
+                                if(!match_found) begin
+                                    error_code_reg <= ERR_ORDER_NOT_FOUND;
+                                    state <= ST_DONE;
+                                end
+
+                                else if (quantity_reg == 0) begin
+                                    error_code_reg <= ERR_ZERO_QUANTITY;
+                                    state <= ST_DONE;
+                                end
+
+                                else begin
+                                    // saving the original order
+                                    replace_old_entry_reg <= bank_read_entry[matching_bank];
+                                    replace_old_addr_reg <= lookup_addr;
+                                    replace_old_bank_reg <= matching_bank;
+
+                                    // Begin the second look up using the new order ID
+                                    order_id_reg <= new_order_id_reg;
+                                    lookup_addr <= hash_order_id(new_order_id_reg);
+
+                                    replace_phase_reg <= 1'b1;
+
+                                    occupied_bank <= '0;
+                                    empty_bank <= '0;
+                                    empty_found <= 1'b0;
+                                    match_found <= 1'b0;
+
+                                    matching_bank <= '0;
+                                    write_selected_bank <= '0;
+
+                                    state <= ST_READ_REQUEST;
+
+
+
+                                end
+                            end
+
+                            // Phase 1: fin the new order
+                            else begin
+                                // New order ID already exists
+                                if (match_found) begin
+                                    error_code_reg <= ERR_DUPLICATE_ORDER;
+                                    state <= ST_DONE;
+                                end
+
+                                else if (!empty_found) begin
+                                    error_code_reg <= ERR_BUCKET_FULL;
+                                    state <= ST_DONE;
+                                end
+
+                                else begin
+                                    // prepare the replacement order for write state
+                                    modified_entry.order_id <= new_order_id_reg;
+                                    modified_entry.symbol <= replace_old_entry_reg.symbol;
+                                    modified_entry.side <= replace_old_entry_reg.side;
+                                    modified_entry.price <= price_reg;
+                                    modified_entry.quantity <= quantity_reg;
+                                    modified_entry.padding <= '0;
+
+                                    // first order_level update for removing the old order
+                                    order_level_symbol_reg <= replace_old_entry_reg.symbol;
+                                    order_level_side_reg <= replace_old_entry_reg.side;
+                                    order_level_price_reg <= replace_old_entry_reg.price;
+                                    order_level_quantity_reg <= -$signed({1'b0, replace_old_entry_reg.quantity});
+                                    order_level_order_count_reg <= -2'sd1;
+                                    
+                                    state <= ST_ORDER_LEVEL;
+
+                                end
+
+
+                            end
+                        end
+
                         default: begin
                             error_code_reg <= ERR_INVALID_OPERATION;
                             state <= ST_DONE;
@@ -571,14 +675,40 @@ module order_store_p3 #(
                     write_data[write_selected_bank] <= modified_entry;
 
                     valid_bits[write_selected_bank][lookup_addr] <= 1'b1;
+                    
+                    // Speical case for replacement op
+                    if (op_reg == OP_REPLACE && replace_phase_reg) begin
+                        // free the old addr
+                        valid_bits[replace_old_bank_reg][replace_old_addr_reg] <= 1'b0;
+
+                        // second order_level update: add the new order 
+                        order_level_symbol_reg <= replace_old_entry_reg.symbol;
+                        order_level_side_reg <= replace_old_entry_reg.side;
+                        order_level_price_reg <= price_reg;
+                        order_level_quantity_reg <= $signed({1'b0, quantity_reg});
+                        order_level_order_count_reg <= 2'sd1;
+
+                        replace_phase_reg <= 1'b0;
+
+
+                    end
 
                     state <= ST_ORDER_LEVEL;
                 end
 
                 ST_ORDER_LEVEL: begin
                     if(order_level_ready) begin
-                        state <= ST_DONE;
+                        // during the first replace level update, the old-level removal just got accepted
+                        // so we need to back to ST_WRITE to insert the replacement order to the order_level
+                        if (op_reg == OP_REPLACE && replace_phase_reg) begin
+                            state <= ST_WRITE;
+                        end
+
+                        else begin
+                            state <= ST_DONE;
+                        end
                     end
+
                 end
                 //Personally think DONE state is unneccesary here
                 //leaving this for future improvement 
