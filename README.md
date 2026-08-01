@@ -53,3 +53,6 @@ The design focuses on:
 
 - [ ] **Phase 6: Deploy and Evaluate the Complete System**  
   Validate the pipeline on FPGA hardware using ILA and hardware timestamps, report timing and resource utilization, compare it with an equivalent C++ pipeline, and migrate toward a 10 Gb/s-capable platform.
+
+
+> This README will be updated as development progresses.
