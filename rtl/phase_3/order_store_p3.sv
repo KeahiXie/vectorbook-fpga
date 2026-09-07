@@ -116,6 +116,7 @@ module order_store_p3 #(
     // ORDER_LEVEL update interface
     output  logic order_level_valid,
     input   logic order_level_ready,
+    input   logic order_level_done,
 
     output  logic [7:0] order_level_symbol,
     output  logic order_level_side,
@@ -205,6 +206,7 @@ module order_store_p3 #(
         ST_MODIFY,
         ST_WRITE,
         ST_ORDER_LEVEL,
+        ST_ORDER_LEVEL_WAIT,
         ST_DONE
     } state_t;
     state_t state;
@@ -334,6 +336,7 @@ module order_store_p3 #(
             replace_old_bank_reg  <= '0;
             replace_new_bank_reg  <= '0;
             new_order_id_reg <= '0;
+            replace_phase_reg  <= '0;
 
 
 
@@ -697,10 +700,15 @@ module order_store_p3 #(
                 end
 
                 ST_ORDER_LEVEL: begin
-                    if(order_level_ready) begin
-                        // during the first replace level update, the old-level removal just got accepted
-                        // so we need to back to ST_WRITE to insert the replacement order to the order_level
-                        if (op_reg == OP_REPLACE && replace_phase_reg) begin
+                    if (order_level_ready) begin
+                        state <= ST_ORDER_LEVEL_WAIT;
+                    end
+
+                end
+
+                ST_ORDER_LEVEL_WAIT: begin
+                    if(order_level_done) begin
+                        if(op_reg == OP_REPLACE && replace_phase_reg) begin
                             state <= ST_WRITE;
                         end
 
@@ -708,7 +716,6 @@ module order_store_p3 #(
                             state <= ST_DONE;
                         end
                     end
-
                 end
                 //Personally think DONE state is unneccesary here
                 //leaving this for future improvement 
