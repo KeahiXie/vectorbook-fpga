@@ -75,8 +75,6 @@ module p_3_order_book_tb();
    //4. Test sequence
      // remember BRAM writes for displaying tables
     // these are testbench copies, not direct BRAM readbacks
-    logic [143:0] order_table [0:2][0:127];
-    logic [95:0] level_table [0:127];
     `include "itch_sender_task.svh"
     `include "book_table_tasks.svh"
     initial begin
