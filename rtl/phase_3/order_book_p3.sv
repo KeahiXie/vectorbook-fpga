@@ -25,32 +25,6 @@ module order_book_p3 #(
     output logic       byte_read,
     input  logic [7:0] data_in,
 
-
-    // Order-store BRAM interface
-    input  logic [ORDER_ENTRY_WIDTH-1:0] order_store_read_data [0:ORDER_NUM_BANKS-1],
-    input  logic order_store_read_valid,
-
-    output logic [ORDER_ADDR_WIDTH-1:0] order_store_read_addr,
-    output logic [ORDER_NUM_BANKS-1:0]  order_store_read_en,
-
-    output logic [ORDER_ENTRY_WIDTH-1:0]
-        order_store_write_data [0:ORDER_NUM_BANKS-1],
-    output logic [ORDER_ADDR_WIDTH-1:0] order_store_write_addr,
-    output logic [ORDER_NUM_BANKS-1:0]  order_store_write_en,
-
-
-    // Order-level BRAM interface
-    input  logic [LEVEL_ENTRY_WIDTH-1:0] order_level_read_data,
-    input  logic                         order_level_read_valid,
-
-    output logic                         order_level_read_en,
-    output logic [LEVEL_ADDR_WIDTH-1:0]  order_level_read_addr,
-
-    output logic                         order_level_write_en,
-    output logic [LEVEL_ADDR_WIDTH-1:0]  order_level_write_addr,
-    output logic [LEVEL_ENTRY_WIDTH-1:0] order_level_write_data,
-
-
     // Best bid
     output logic [PRICE_WIDTH-1:0]
         best_bid_price [0:NUM_SYMBOLS-1],
@@ -91,9 +65,8 @@ module order_book_p3 #(
     output logic [3:0] order_level_error_code
 );
 
-    // =========================================================
+ 
     // Parser -> Order Store
-    // =========================================================
     logic        parser_event_valid;
     logic        parser_event_ready;
     logic [2:0]  parser_event_operation;
@@ -104,9 +77,8 @@ module order_book_p3 #(
     logic [31:0] parser_event_price;
     logic [31:0] parser_event_quantity;
 
-    // =========================================================
+ 
     // Order Store -> Order Level
-    // =========================================================
     logic               level_update_valid;
     logic               level_update_ready;
     logic               level_update_done;
@@ -117,9 +89,47 @@ module order_book_p3 #(
     logic signed [1:0]  level_update_order_count;
 
 
-    // =========================================================
+ 
+    // Order Store BRAM signals
+ 
+    logic [ORDER_ENTRY_WIDTH-1:0]
+        order_store_read_data [0:ORDER_NUM_BANKS-1];
+
+    logic [ORDER_ADDR_WIDTH-1:0] order_store_read_addr;
+    logic [ORDER_NUM_BANKS-1:0]  order_store_read_en;
+
+    logic [ORDER_ENTRY_WIDTH-1:0]
+        order_store_write_data [0:ORDER_NUM_BANKS-1];
+
+    logic [ORDER_ADDR_WIDTH-1:0] order_store_write_addr;
+    logic [ORDER_NUM_BANKS-1:0]  order_store_write_en;
+
+
+ 
+    // Order Level BRAM signals
+ 
+    logic [LEVEL_ENTRY_WIDTH-1:0] order_level_read_data;
+
+    logic                         order_level_read_en;
+    logic [LEVEL_ADDR_WIDTH-1:0]  order_level_read_addr;
+
+    logic                         order_level_write_en;
+    logic [LEVEL_ADDR_WIDTH-1:0]  order_level_write_addr;
+    logic [LEVEL_ENTRY_WIDTH-1:0] order_level_write_data;
+
+
+    // order_level only needs 96 bits but we're using the same
+    // 144 bit BRAM we made for order_store
+    logic [143:0] order_level_bram_read_data;
+    logic [143:0] order_level_bram_write_data;
+
+    assign order_level_bram_write_data[95:0] = order_level_write_data;
+    assign order_level_bram_write_data[143:96] = 48'b0;
+
+    assign order_level_read_data = order_level_bram_read_data[95:0];
+
+
     // ITCH Parser
-    // =========================================================
     itch_parser_p3 #(
         .NUM_SYMBOLS(NUM_SYMBOLS)
     ) u_itch_parser (
@@ -146,9 +156,72 @@ module order_book_p3 #(
     );
 
 
-    // =========================================================
+    // BRAM for order_store bank 0
+    bram_144x128 u_order_store_bram_0 (
+        .clka  (clk),
+        .ena   (order_store_write_en[0]),
+        .wea   (order_store_write_en[0]),
+        .addra (order_store_write_addr),
+        .dina  (order_store_write_data[0]),
+
+        .clkb  (clk),
+        .enb   (order_store_read_en[0]),
+        .addrb (order_store_read_addr),
+        .doutb (order_store_read_data[0])
+    );
+
+
+    // BRAM for order_store bank 1
+    bram_144x128 u_order_store_bram_1 (
+        .clka  (clk),
+        .ena   (order_store_write_en[1]),
+        .wea   (order_store_write_en[1]),
+        .addra (order_store_write_addr),
+        .dina  (order_store_write_data[1]),
+
+        .clkb  (clk),
+        .enb   (order_store_read_en[1]),
+        .addrb (order_store_read_addr),
+        .doutb (order_store_read_data[1])
+    );
+
+
+
+    // BRAM for order_store bank 2
+    bram_144x128 u_order_store_bram_2 (
+        .clka  (clk),
+        .ena   (order_store_write_en[2]),
+        .wea   (order_store_write_en[2]),
+        .addra (order_store_write_addr),
+        .dina  (order_store_write_data[2]),
+
+        .clkb  (clk),
+        .enb   (order_store_read_en[2]),
+        .addrb (order_store_read_addr),
+        .doutb (order_store_read_data[2])
+    );
+
+
+
+    // BRAM for order_level
+    // using another instance of the same 144 x 128 BRAM
+    // upper 48 bits are not used
+    bram_144x128 u_order_level_bram (
+        .clka  (clk),
+        .ena   (order_level_write_en),
+        .wea   (order_level_write_en),
+        .addra (order_level_write_addr),
+        .dina  (order_level_bram_write_data),
+
+        .clkb  (clk),
+        .enb   (order_level_read_en),
+        .addrb (order_level_read_addr),
+        .doutb (order_level_bram_read_data)
+    );
+
+
+
     // Individual Order Store
-    // =========================================================
     order_store_p3 #(
         .NUM_BANKS   (ORDER_NUM_BANKS),
         .TABLE_DEPTH (ORDER_TABLE_DEPTH),
@@ -170,7 +243,6 @@ module order_book_p3 #(
         .event_quantity          (parser_event_quantity),
 
         .read_data               (order_store_read_data),
-        .read_valid              (order_store_read_valid),
         .read_addr               (order_store_read_addr),
         .read_en                 (order_store_read_en),
 
@@ -195,6 +267,7 @@ module order_book_p3 #(
 
 
 
+    // Price-Level Store
     order_level_p3 #(
         .NUM_SYMBOLS    (NUM_SYMBOLS),
         .NUM_PROBES     (LEVEL_NUM_PROBES),
@@ -217,7 +290,6 @@ module order_book_p3 #(
         .order_level_order_count (level_update_order_count),
 
         .read_data               (order_level_read_data),
-        .read_valid              (order_level_read_valid),
         .read_en                 (order_level_read_en),
         .read_addr               (order_level_read_addr),
 

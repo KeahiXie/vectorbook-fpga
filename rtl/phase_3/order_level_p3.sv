@@ -26,8 +26,8 @@
         6. Update the best bid when a higher bid price arrives.
         7. Update the best ask when a lower ask price arrives.
 
-    Flow: Incoming order_level change -> Read current BRAM level -> update quantity/count
-          Write updated level to BRAM -> update best bid/ask registers -> Done
+    Flow: Incoming order_level change -> Read current BRAM level -> Wait for read -> Capture BRAM data
+          update quantity/count -> Write updated level to BRAM -> update best bid/ask registers -> Done
 
     Note: when the current best level is completely removed, the best register becomes invalid.
           Finding the next-best level from BRAM can be implemented later.
@@ -62,7 +62,6 @@ module order_level_p3 #(
 
     // BRAM Interface
     input logic [ENTRY_WIDTH-1:0]   read_data,
-    input logic                     read_valid,
 
     output logic                    read_en,
     output logic [ADDR_WIDTH-1:0]   read_addr,
@@ -118,6 +117,7 @@ module order_level_p3 #(
         ST_IDLE,
         ST_READ_REQUEST,
         ST_WAIT_FOR_READ,
+        ST_CAPTURE_READ,
         ST_CHECK,
         ST_PROBE_DONE,
         ST_MODIFY,
@@ -359,12 +359,14 @@ always_ff @(posedge clk) begin
             end
 
             ST_WAIT_FOR_READ: begin
-                if(read_valid) begin
-                    current_entry_reg <= order_level_entry_t'(read_data);
-                    current_entry_valid_reg <= level_valid_bits_bram[read_addr_reg];
+                state <= ST_CAPTURE_READ;
+            end
+
+            ST_CAPTURE_READ: begin
+                current_entry_reg <= order_level_entry_t'(read_data);
+                current_entry_valid_reg <= level_valid_bits_bram[read_addr_reg];
                     
-                    state <= ST_CHECK;
-                end
+                state <= ST_CHECK;
             end
 
             ST_CHECK: begin
