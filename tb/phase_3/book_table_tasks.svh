@@ -62,14 +62,14 @@ task automatic print_tables();
 
             // Invalid locations can contain old data, so only print
             // locations whose separate valid bit is set.
-            if (dut.u_order_store.valid_bits[bank][addr] === 1'b1) begin
+            if (dut.u_order_store.valid_bits[bank][bram_scan_addr] === 1'b1) begin
 
                 order_entry = dut.order_store_read_data[bank];
 
                 $display(
                     "| %4d | %5d | %20d | %6d | %4s | %10d | %10d |",
                     bank,
-                    addr,
+                    bram_scan_addr,
                     order_entry[143:80],
                     order_entry[79:72],
                     order_entry[71] ? "SELL" : "BUY ",
@@ -120,13 +120,13 @@ task automatic print_tables();
         @(negedge clk);
 
 
-        if (dut.u_order_level.level_valid_bits_bram[addr] === 1'b1) begin
+        if (dut.u_order_level.level_valid_bits_bram[bram_scan_addr] === 1'b1) begin
 
             level_entry = dut.order_level_read_data;
 
             $display(
                 "| %5d | %6d | %4s | %10d | %14d | %11d |",
-                addr,
+                bram_scan_addr,
                 level_entry[95:88],
                 level_entry[87] ? "SELL" : "BUY ",
                 level_entry[86:55],
