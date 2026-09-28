@@ -30,9 +30,6 @@ ITCH bytes -> parser -> order_store -> order_level -> best bid/ask
 */
 
 
-
-
-
 module order_book_p3 #(
     parameter int NUM_SYMBOLS = 4,
 
@@ -55,41 +52,36 @@ module order_book_p3 #(
     input logic clk,
     input logic rst,
 
-    // Incoming ITCH byte stream
-    input  logic       byte_valid,
-    output logic       byte_read,
-    input  logic [7:0] data_in,
+    // Parser input
+    input logic        parser_event_valid,
+    output logic        parser_event_ready,
+    input logic [2:0]  parser_event_operation,
+    input logic [63:0] parser_event_order_id,
+    input logic [63:0] parser_event_new_order_id,
+    input logic [7:0]  parser_event_symbol,
+    input logic        parser_event_side,
+    input logic [31:0] parser_event_price,
+    input logic [31:0] parser_event_quantity,
+
+
 
     // Best bid
-    output logic [PRICE_WIDTH-1:0]
-        best_bid_price [0:NUM_SYMBOLS-1],
-    output logic [QUANTITY_WIDTH-1:0]
-        best_bid_quantity [0:NUM_SYMBOLS-1],
-    output logic [COUNT_WIDTH-1:0]
-        best_bid_order_count [0:NUM_SYMBOLS-1],
-    output logic
-        best_bid_valid [0:NUM_SYMBOLS-1],
+    output logic [PRICE_WIDTH-1:0]  best_bid_price [0:NUM_SYMBOLS-1],
+    output logic [QUANTITY_WIDTH-1:0]   best_bid_quantity [0:NUM_SYMBOLS-1],
+    output logic [COUNT_WIDTH-1:0]      best_bid_order_count [0:NUM_SYMBOLS-1],
+    output logic                        best_bid_valid [0:NUM_SYMBOLS-1],
 
     // Best ask
-    output logic [PRICE_WIDTH-1:0]
-        best_ask_price [0:NUM_SYMBOLS-1],
-    output logic [QUANTITY_WIDTH-1:0]
-        best_ask_quantity [0:NUM_SYMBOLS-1],
-    output logic [COUNT_WIDTH-1:0]
-        best_ask_order_count [0:NUM_SYMBOLS-1],
-    output logic
-        best_ask_valid [0:NUM_SYMBOLS-1],
+    output logic [PRICE_WIDTH-1:0]      best_ask_price [0:NUM_SYMBOLS-1],
+    output logic [QUANTITY_WIDTH-1:0]   best_ask_quantity [0:NUM_SYMBOLS-1],
+    output logic [COUNT_WIDTH-1:0]      best_ask_order_count [0:NUM_SYMBOLS-1],
+    output logic                        best_ask_valid [0:NUM_SYMBOLS-1],
 
-    // ---------------------------------------------------------
+
     // Final operation status
-    // order_store_operation_done now occurs only after
-    // order_level has completed its update.
-    // ---------------------------------------------------------
+    // occurs only after order_level has completed its update.
     output logic operation_done,
 
-    // Parser error
-    output logic       parser_error_valid,
-    output logic [3:0] parser_error_code,
 
     // Order-store error
     output logic       order_store_error_valid,
@@ -101,16 +93,6 @@ module order_book_p3 #(
 );
 
  
-    // Parser -> Order Store
-    logic        parser_event_valid;
-    logic        parser_event_ready;
-    logic [2:0]  parser_event_operation;
-    logic [63:0] parser_event_order_id;
-    logic [63:0] parser_event_new_order_id;
-    logic [7:0]  parser_event_symbol;
-    logic        parser_event_side;
-    logic [31:0] parser_event_price;
-    logic [31:0] parser_event_quantity;
 
  
     // Order Store -> Order Level
@@ -127,27 +109,20 @@ module order_book_p3 #(
  
     // Order Store BRAM signals
  
-    logic [ORDER_ENTRY_WIDTH-1:0]
-        order_store_read_data [0:ORDER_NUM_BANKS-1];
-
-    logic [ORDER_ADDR_WIDTH-1:0] order_store_read_addr;
-    logic [ORDER_NUM_BANKS-1:0]  order_store_read_en;
-
-    logic [ORDER_ENTRY_WIDTH-1:0]
-        order_store_write_data [0:ORDER_NUM_BANKS-1];
-
-    logic [ORDER_ADDR_WIDTH-1:0] order_store_write_addr;
-    logic [ORDER_NUM_BANKS-1:0]  order_store_write_en;
+    logic [ORDER_ENTRY_WIDTH-1:0]       order_store_read_data [0:ORDER_NUM_BANKS-1];
+    logic [ORDER_ADDR_WIDTH-1:0]        order_store_read_addr;
+    logic [ORDER_NUM_BANKS-1:0]         order_store_read_en;
+    logic [ORDER_ENTRY_WIDTH-1:0]       order_store_write_data [0:ORDER_NUM_BANKS-1];
+    logic [ORDER_ADDR_WIDTH-1:0]        order_store_write_addr;
+    logic [ORDER_NUM_BANKS-1:0]         order_store_write_en;
 
 
  
     // Order Level BRAM signals
  
     logic [LEVEL_ENTRY_WIDTH-1:0] order_level_read_data;
-
     logic                         order_level_read_en;
     logic [LEVEL_ADDR_WIDTH-1:0]  order_level_read_addr;
-
     logic                         order_level_write_en;
     logic [LEVEL_ADDR_WIDTH-1:0]  order_level_write_addr;
     logic [LEVEL_ENTRY_WIDTH-1:0] order_level_write_data;
@@ -164,31 +139,7 @@ module order_book_p3 #(
     assign order_level_read_data = order_level_bram_read_data[95:0];
 
 
-    // ITCH Parser
-    itch_parser_p3 #(
-        .NUM_SYMBOLS(NUM_SYMBOLS)
-    ) u_itch_parser (
-        .clk                (clk),
-        .rst                (rst),
 
-        .byte_valid         (byte_valid),
-        .byte_read          (byte_read),
-        .data_in            (data_in),
-
-        .event_valid        (parser_event_valid),
-        .event_ready        (parser_event_ready),
-
-        .event_operation    (parser_event_operation),
-        .event_order_id     (parser_event_order_id),
-        .event_new_order_id (parser_event_new_order_id),
-        .event_symbol       (parser_event_symbol),
-        .event_side         (parser_event_side),
-        .event_price        (parser_event_price),
-        .event_quantity     (parser_event_quantity),
-
-        .error_valid        (parser_error_valid),
-        .error_code         (parser_error_code)
-    );
 
 
     // BRAM for order_store bank 0
