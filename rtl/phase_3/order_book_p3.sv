@@ -25,11 +25,9 @@ module order_book_p3 #(
     output logic       byte_read,
     input  logic [7:0] data_in,
 
-    // ---------------------------------------------------------
+
     // Order-store BRAM interface
-    // ---------------------------------------------------------
-    input  logic [ORDER_ENTRY_WIDTH-1:0]
-        order_store_read_data [0:ORDER_NUM_BANKS-1],
+    input  logic [ORDER_ENTRY_WIDTH-1:0] order_store_read_data [0:ORDER_NUM_BANKS-1],
     input  logic order_store_read_valid,
 
     output logic [ORDER_ADDR_WIDTH-1:0] order_store_read_addr,
@@ -40,9 +38,8 @@ module order_book_p3 #(
     output logic [ORDER_ADDR_WIDTH-1:0] order_store_write_addr,
     output logic [ORDER_NUM_BANKS-1:0]  order_store_write_en,
 
-    // ---------------------------------------------------------
+
     // Order-level BRAM interface
-    // ---------------------------------------------------------
     input  logic [LEVEL_ENTRY_WIDTH-1:0] order_level_read_data,
     input  logic                         order_level_read_valid,
 
@@ -53,9 +50,8 @@ module order_book_p3 #(
     output logic [LEVEL_ADDR_WIDTH-1:0]  order_level_write_addr,
     output logic [LEVEL_ENTRY_WIDTH-1:0] order_level_write_data,
 
-    // ---------------------------------------------------------
+
     // Best bid
-    // ---------------------------------------------------------
     output logic [PRICE_WIDTH-1:0]
         best_bid_price [0:NUM_SYMBOLS-1],
     output logic [QUANTITY_WIDTH-1:0]
@@ -65,9 +61,7 @@ module order_book_p3 #(
     output logic
         best_bid_valid [0:NUM_SYMBOLS-1],
 
-    // ---------------------------------------------------------
     // Best ask
-    // ---------------------------------------------------------
     output logic [PRICE_WIDTH-1:0]
         best_ask_price [0:NUM_SYMBOLS-1],
     output logic [QUANTITY_WIDTH-1:0]
@@ -200,9 +194,7 @@ module order_book_p3 #(
     );
 
 
-    // =========================================================
-    // Price-Level Store
-    // =========================================================
+
     order_level_p3 #(
         .NUM_SYMBOLS    (NUM_SYMBOLS),
         .NUM_PROBES     (LEVEL_NUM_PROBES),
