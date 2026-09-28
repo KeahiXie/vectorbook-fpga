@@ -1,3 +1,8 @@
+/*
+This file has four helpful task: send_byte, send_add, send_replace and check_bid,
+*/
+
+
 // Sends one byte using valid/ready
 task automatic send_byte(input logic [7:0] value);
     // handshake logic: a transfer happens only on a rising clock edge
@@ -112,3 +117,42 @@ task automatic send_replace(
     end
 
 endtask
+
+    task automatic check_bid(
+        input logic [31:0] expected_price,
+        input logic [31:0] expected_quantity,
+        input logic [15:0] expected_count
+    );
+
+        wait (operation_done == 1'b1);
+        @(negedge clk);
+        
+        print_tables();
+
+        if (best_bid_valid[0] !== 1'b1 ||
+            best_bid_price[0] !== expected_price ||
+            best_bid_quantity[0] !== expected_quantity ||
+            best_bid_order_count[0] !== expected_count) begin
+
+            $display("Expected: price=%0d quantity=%0d count=%0d",
+                expected_price,
+                expected_quantity,
+                expected_count);
+
+            $fatal(1,
+                "Actual: valid=%b price=%0d quantity=%0d count=%0d",
+                best_bid_valid[0],
+                best_bid_price[0],
+                best_bid_quantity[0],
+                best_bid_order_count[0]);
+        end
+
+        $display("PASS: best bid price=%0d quantity=%0d count=%0d",
+            best_bid_price[0],
+            best_bid_quantity[0],
+            best_bid_order_count[0]);
+
+        // wait for this operation's done signal to clear
+        wait (operation_done == 1'b0);
+
+    endtask

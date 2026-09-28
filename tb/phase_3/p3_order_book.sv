@@ -72,40 +72,65 @@ module p_3_order_book_tb();
         .order_level_error_code  (order_level_error_code)
     );
 
-    //4, Test sequence 
+   //4. Test sequence
     `include "itch_sender_task.svh"
+    `include "book_table_tasks.svh"
     initial begin
+
         repeat (4) @(negedge clk);
         rst = 1'b0;
 
         @(negedge clk);
-        // ID 1, stock locate 100, buy, quantity 10, raw price 100
+
+        $display("\nADD ID 1: buy 10 at 100");
         send_add(64'd1, 16'd100, 1'b0, 32'd10, 32'd100);
+        check_bid(32'd100, 32'd10, 16'd1);
 
-        // sending bytes is finished; wait for the book update
-        wait (operation_done == 1'b1);
+        // same price, quantity and count should increase
+        $display("\nADD ID 2: buy 20 at 100");
+        send_add(64'd2, 16'd100, 1'b0, 32'd20, 32'd100);
+        check_bid(32'd100, 32'd30, 16'd2);
 
-        if (best_bid_valid[0] !== 1'b1 ||
-            best_bid_price[0] !== 32'd100 ||
-            best_bid_quantity[0] !== 32'd10 ||
-            best_bid_order_count[0] !== 16'd1) begin
+        // lower bid should not change the best bid
+        $display("\nADD ID 3: buy 5 at 99");
+        send_add(64'd3, 16'd100, 1'b0, 32'd5, 32'd99);
+        check_bid(32'd100, 32'd30, 16'd2);
 
-            $fatal(1, "ADD failed: valid=%b price=%0d quantity=%0d count=%0d",
-                best_bid_valid[0],
-                best_bid_price[0],
-                best_bid_quantity[0],
-                best_bid_order_count[0]);
-        end
+        // replace the lower bid with a new best bid
+        $display("\nREPLACE ID 3 with ID 4: buy 15 at 101");
+        send_replace(64'd3, 64'd4, 16'd100, 32'd15, 32'd101);
+        check_bid(32'd101, 32'd15, 16'd1);
 
-        $display("PASS: first ADD");
+        // move another order to the existing best level
+        $display("\nREPLACE ID 1 with ID 5: buy 7 at 101");
+        send_replace(64'd1, 64'd5, 16'd100, 32'd7, 32'd101);
+        check_bid(32'd101, 32'd22, 16'd2);
 
-        $display("Best bid: valid=%b price=%0d quantity=%0d count=%0d",
-            best_bid_valid[0],
-            best_bid_price[0],
-            best_bid_quantity[0],
-            best_bid_order_count[0]);
+        // look up a replacement using its new ID
+        // ID 5 remains at 101, so that level is not removed
+        $display("\nREPLACE ID 4 with ID 6: buy 12 at 102");
+        send_replace(64'd4, 64'd6, 16'd100, 32'd12, 32'd102);
+        check_bid(32'd102, 32'd12, 16'd1);
 
+        $display("\nPASS: all ADD and REPLACE checks");
         $finish;
+    end 
+
+    always @(posedge clk) begin
+        if (!rst) begin
+
+            if (parser_error_valid)
+                $fatal(1, "Parser error: %0d", parser_error_code);
+
+            if (order_store_error_valid)
+                $fatal(1, "Order store error: %0d",
+                    order_store_error_code);
+
+            if (order_level_error_valid)
+                $fatal(1, "Order level error: %0d",
+                    order_level_error_code);
+
+        end
     end
 
 endmodule;

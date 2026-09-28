@@ -1,3 +1,38 @@
+/*
+This is the top-level module that connects the ITCH parser, order_store,
+order_level, and their BRAMs to build the order book.
+
+The ITCH parser converts incoming bytes into order events.
+The order_store stores each order separately, using order ID for lookup:
+
+    +----------+--------+------+-------+----------+
+    | Order ID | Symbol | Side | Price | Quantity |
+    +----------+--------+------+-------+----------+
+    |    1     |   0    | Buy  |  100  |    10    |
+    |    2     |   0    | Buy  |  100  |    20    |
+    |    3     |   0    | Buy  |   99  |     5    |
+    +----------+--------+------+-------+----------+
+
+The order_level combines orders at the same symbol, side, and price:
+
+    +--------+------+-------+----------------+-------------+
+    | Symbol | Side | Price | Total Quantity | Order Count |
+    +--------+------+-------+----------------+-------------+
+    |   0    | Buy  |  100  |       30       |      2      |
+    |   0    | Buy  |   99  |        5       |      1      |
+    +--------+------+-------+----------------+-------------+
+
+
+Three BRAMs store individual orders, and one BRAM stores price levels.
+
+Flow:
+ITCH bytes -> parser -> order_store -> order_level -> best bid/ask
+*/
+
+
+
+
+
 module order_book_p3 #(
     parameter int NUM_SYMBOLS = 4,
 
