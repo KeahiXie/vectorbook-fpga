@@ -11,7 +11,7 @@ NanoTrader is an FPGA-based low-latency trading system that processes NASDAQ ITC
 | **Language** | SystemVerilog |
 
 
-*Last updated: July 31, 2026*
+*Last updated: Sep 28, 2026*
 
 
 ## Overview
@@ -45,7 +45,7 @@ The design focuses on:
 - [x] **Phase 3: Add Streaming Traffic Management**  
   Introduce ready/valid handshaking, synchronous FIFO buffering, and backpressure so the parser can safely process continuous and bursty market-data input.
 
-- [ ] **Phase 4: Build an ITCH-Driven Hardware Order Book**  
+- [X] **Phase 4: Build an ITCH-Driven Hardware Order Book**  
   Decode NASDAQ ITCH 5.0 order events, support common operations including Add, Execute, Cancel, Delete, and Replace, store individual orders in a BRAM-backed hash table, aggregate quantity by price level, and maintain best-bid and best-ask state.
 
 - [ ] **Phase 5: Develop the Network Receive Pipeline**  
