@@ -6,13 +6,20 @@ The valid bits are stored outside the BRAM, so they are used to decide
 which BRAM entries are active and should be printed.
 */
 
+// Static testbench signal used to scan BRAM addresses.
+// It must be outside the automatic task because Vivado does not allow
+// an automatic variable on the right side of a force statement.
+logic [6:0] bram_scan_addr = '0;
+
+
 task automatic print_tables();
 
     logic [143:0] order_entry;
     logic [95:0]  level_entry;
 
-    // Wait until order_store and order_level are both idle.
-    // The testbench can safely use their BRAM read ports now.
+
+    // Wait until order_store and order_level are idle.
+    // It is now safe for the testbench to use the BRAM read ports.
     wait (
         dut.parser_event_ready == 1'b1 &&
         dut.level_update_ready == 1'b1
@@ -29,23 +36,32 @@ task automatic print_tables();
     $display("| Bank | Addr  | Order ID             | Symbol | Side | Price      | Quantity   |");
     $display("+------+-------+----------------------+--------+------+------------+------------+");
 
-    // All three banks share the same read address.
-    force dut.order_store_read_en = 3'b111;
+
+    // Take control of the read ports of all three order-store BRAMs.
+    force dut.u_order_store_bram_0.enb = 1'b1;
+    force dut.u_order_store_bram_1.enb = 1'b1;
+    force dut.u_order_store_bram_2.enb = 1'b1;
+
+    force dut.u_order_store_bram_0.addrb = bram_scan_addr;
+    force dut.u_order_store_bram_1.addrb = bram_scan_addr;
+    force dut.u_order_store_bram_2.addrb = bram_scan_addr;
+
 
     for (int addr = 0; addr < 128; addr++) begin
 
-        force dut.order_store_read_addr = addr;
+        bram_scan_addr = addr[6:0];
 
-        // BRAM accepts the address on this rising edge.
+        // BRAM accepts the address on the rising edge.
         @(posedge clk);
 
-        // Read data is stable by the following falling edge.
+        // Read output is stable by the falling edge.
         @(negedge clk);
+
 
         for (int bank = 0; bank < 3; bank++) begin
 
-            // Only print active entries.
-            // Invalid BRAM locations may still contain old data.
+            // Invalid locations can contain old data, so only print
+            // locations whose separate valid bit is set.
             if (dut.u_order_store.valid_bits[bank][addr] === 1'b1) begin
 
                 order_entry = dut.order_store_read_data[bank];
@@ -65,8 +81,16 @@ task automatic print_tables();
         end
     end
 
-    release dut.order_store_read_addr;
-    release dut.order_store_read_en;
+
+    // Return control of the BRAM ports to order_store.
+    release dut.u_order_store_bram_0.addrb;
+    release dut.u_order_store_bram_1.addrb;
+    release dut.u_order_store_bram_2.addrb;
+
+    release dut.u_order_store_bram_0.enb;
+    release dut.u_order_store_bram_1.enb;
+    release dut.u_order_store_bram_2.enb;
+
 
     $display("+------+-------+----------------------+--------+------+------------+------------+");
 
@@ -79,17 +103,22 @@ task automatic print_tables();
     $display("| Addr  | Symbol | Side | Price      | Total Quantity | Order Count |");
     $display("+-------+--------+------+------------+----------------+-------------+");
 
-    force dut.order_level_read_en = 1'b1;
+
+    // Take control of the order-level BRAM read port.
+    force dut.u_order_level_bram.enb = 1'b1;
+    force dut.u_order_level_bram.addrb = bram_scan_addr;
+
 
     for (int addr = 0; addr < 128; addr++) begin
 
-        force dut.order_level_read_addr = addr;
+        bram_scan_addr = addr[6:0];
 
-        // BRAM accepts the address on this rising edge.
+        // BRAM accepts the address on the rising edge.
         @(posedge clk);
 
-        // Read data is stable by the following falling edge.
+        // Read output is stable by the falling edge.
         @(negedge clk);
+
 
         if (dut.u_order_level.level_valid_bits_bram[addr] === 1'b1) begin
 
@@ -108,8 +137,11 @@ task automatic print_tables();
         end
     end
 
-    release dut.order_level_read_addr;
-    release dut.order_level_read_en;
+
+    // Return control of the BRAM port to order_level.
+    release dut.u_order_level_bram.addrb;
+    release dut.u_order_level_bram.enb;
+
 
     $display("+-------+--------+------+------------+----------------+-------------+");
 
