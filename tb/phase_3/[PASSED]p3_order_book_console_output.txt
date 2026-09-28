@@ -1,0 +1,127 @@
+# run 2ms
+Block Memory Generator module p_3_order_book_tb.dut.u_order_store_bram_0.inst.native_mem_module.blk_mem_gen_v8_4_4_inst is using a behavioral model for simulation which will not precisely model memory collision behavior.
+Block Memory Generator module p_3_order_book_tb.dut.u_order_store_bram_1.inst.native_mem_module.blk_mem_gen_v8_4_4_inst is using a behavioral model for simulation which will not precisely model memory collision behavior.
+Block Memory Generator module p_3_order_book_tb.dut.u_order_store_bram_2.inst.native_mem_module.blk_mem_gen_v8_4_4_inst is using a behavioral model for simulation which will not precisely model memory collision behavior.
+Block Memory Generator module p_3_order_book_tb.dut.u_order_level_bram.inst.native_mem_module.blk_mem_gen_v8_4_4_inst is using a behavioral model for simulation which will not precisely model memory collision behavior.
+
+ADD ID 1: buy 10 at 100
+
+ORDER STORE BRAM
++------+-------+----------------------+--------+------+------------+------------+
+| Bank | Addr  | Order ID             | Symbol | Side | Price      | Quantity   |
++------+-------+----------------------+--------+------+------------+------------+
+|    0 |     1 |                    1 |      0 | BUY  |        100 |         10 |
++------+-------+----------------------+--------+------+------------+------------+
+
+ORDER LEVEL BRAM
++-------+--------+------+------------+----------------+-------------+
+| Addr  | Symbol | Side | Price      | Total Quantity | Order Count |
++-------+--------+------+------------+----------------+-------------+
+|   100 |      0 | BUY  |        100 |             10 |           1 |
++-------+--------+------+------------+----------------+-------------+
+PASS: best bid price=100 quantity=10 count=1
+
+ADD ID 2: buy 20 at 100
+
+ORDER STORE BRAM
++------+-------+----------------------+--------+------+------------+------------+
+| Bank | Addr  | Order ID             | Symbol | Side | Price      | Quantity   |
++------+-------+----------------------+--------+------+------------+------------+
+|    0 |     1 |                    1 |      0 | BUY  |        100 |         10 |
+|    0 |     2 |                    2 |      0 | BUY  |        100 |         20 |
++------+-------+----------------------+--------+------+------------+------------+
+
+ORDER LEVEL BRAM
++-------+--------+------+------------+----------------+-------------+
+| Addr  | Symbol | Side | Price      | Total Quantity | Order Count |
++-------+--------+------+------------+----------------+-------------+
+|   100 |      0 | BUY  |        100 |             30 |           2 |
++-------+--------+------+------------+----------------+-------------+
+PASS: best bid price=100 quantity=30 count=2
+
+ADD ID 3: buy 5 at 99
+
+ORDER STORE BRAM
++------+-------+----------------------+--------+------+------------+------------+
+| Bank | Addr  | Order ID             | Symbol | Side | Price      | Quantity   |
++------+-------+----------------------+--------+------+------------+------------+
+|    0 |     1 |                    1 |      0 | BUY  |        100 |         10 |
+|    0 |     2 |                    2 |      0 | BUY  |        100 |         20 |
+|    0 |     3 |                    3 |      0 | BUY  |         99 |          5 |
++------+-------+----------------------+--------+------+------------+------------+
+
+ORDER LEVEL BRAM
++-------+--------+------+------------+----------------+-------------+
+| Addr  | Symbol | Side | Price      | Total Quantity | Order Count |
++-------+--------+------+------------+----------------+-------------+
+|    99 |      0 | BUY  |         99 |              5 |           1 |
+|   100 |      0 | BUY  |        100 |             30 |           2 |
++-------+--------+------+------------+----------------+-------------+
+PASS: best bid price=100 quantity=30 count=2
+
+REPLACE ID 3 with ID 4: buy 15 at 101
+
+ORDER STORE BRAM
++------+-------+----------------------+--------+------+------------+------------+
+| Bank | Addr  | Order ID             | Symbol | Side | Price      | Quantity   |
++------+-------+----------------------+--------+------+------------+------------+
+|    0 |     1 |                    1 |      0 | BUY  |        100 |         10 |
+|    0 |     2 |                    2 |      0 | BUY  |        100 |         20 |
+|    0 |     4 |                    4 |      0 | BUY  |        101 |         15 |
++------+-------+----------------------+--------+------+------------+------------+
+
+ORDER LEVEL BRAM
++-------+--------+------+------------+----------------+-------------+
+| Addr  | Symbol | Side | Price      | Total Quantity | Order Count |
++-------+--------+------+------------+----------------+-------------+
+|   100 |      0 | BUY  |        100 |             30 |           2 |
+|   101 |      0 | BUY  |        101 |             15 |           1 |
++-------+--------+------+------------+----------------+-------------+
+PASS: best bid price=101 quantity=15 count=1
+
+REPLACE ID 1 with ID 5: buy 7 at 101
+
+ORDER STORE BRAM
++------+-------+----------------------+--------+------+------------+------------+
+| Bank | Addr  | Order ID             | Symbol | Side | Price      | Quantity   |
++------+-------+----------------------+--------+------+------------+------------+
+|    0 |     2 |                    2 |      0 | BUY  |        100 |         20 |
+|    0 |     4 |                    4 |      0 | BUY  |        101 |         15 |
+|    0 |     5 |                    5 |      0 | BUY  |        101 |          7 |
++------+-------+----------------------+--------+------+------------+------------+
+
+ORDER LEVEL BRAM
++-------+--------+------+------------+----------------+-------------+
+| Addr  | Symbol | Side | Price      | Total Quantity | Order Count |
++-------+--------+------+------------+----------------+-------------+
+|   100 |      0 | BUY  |        100 |             20 |           1 |
+|   101 |      0 | BUY  |        101 |             22 |           2 |
++-------+--------+------+------------+----------------+-------------+
+PASS: best bid price=101 quantity=22 count=2
+
+REPLACE ID 4 with ID 6: buy 12 at 102
+
+ORDER STORE BRAM
++------+-------+----------------------+--------+------+------------+------------+
+| Bank | Addr  | Order ID             | Symbol | Side | Price      | Quantity   |
++------+-------+----------------------+--------+------+------------+------------+
+|    0 |     2 |                    2 |      0 | BUY  |        100 |         20 |
+|    0 |     5 |                    5 |      0 | BUY  |        101 |          7 |
+|    0 |     6 |                    6 |      0 | BUY  |        102 |         12 |
++------+-------+----------------------+--------+------+------------+------------+
+
+ORDER LEVEL BRAM
++-------+--------+------+------------+----------------+-------------+
+| Addr  | Symbol | Side | Price      | Total Quantity | Order Count |
++-------+--------+------+------------+----------------+-------------+
+|   100 |      0 | BUY  |        100 |             20 |           1 |
+|   101 |      0 | BUY  |        101 |              7 |           1 |
+|   102 |      0 | BUY  |        102 |             12 |           1 |
++-------+--------+------+------------+----------------+-------------+
+PASS: best bid price=102 quantity=12 count=1
+
+PASS: all ADD and REPLACE checks
+$finish called at time : 17176 ns : File "C:/Users/Keahi/vectorbook-fpga/tb/phase_3/p3_order_book.sv" Line 118
+INFO: [USF-XSim-96] XSim completed. Design snapshot 'p_3_order_book_tb_behav' loaded.
+INFO: [USF-XSim-97] XSim simulation ran for 2ms
+launch_simulation: Time (s): cpu = 00:00:05 ; elapsed = 00:00:07 . Memory (MB): peak = 1948.938 ; gain = 0.000
