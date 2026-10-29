@@ -7,7 +7,7 @@ https://github.com/user-attachments/assets/755f067e-3ab2-478b-85a4-d8bd3f9954a1
 
 
 
-
+<img src="media/nanotrader-results.svg" width="100%" alt="NanoTrader performance results">
 
 
 
