@@ -14,6 +14,14 @@ NanoTrader is an FPGA-based low-latency trading system that processes NASDAQ ITC
 *Last updated: Sep 28, 2026*
 
 
+
+https://github.com/user-attachments/assets/755f067e-3ab2-478b-85a4-d8bd3f9954a1
+
+
+
+
+
+
 ## Overview
 
 The goal of NanoTrader is to build a complete FPGA-based trading pipeline and study the tradeoffs between latency, throughput, resource usage, and design complexity.
