@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="404" viewBox="0 0 960 404" role="img" aria-labelledby="t d">
+  <title id="t">NanoTrader v1 results</title>
+  <desc id="d">Platform: Digilent Zybo Rev B (Zynq xc7z010), LAN8720 RMII Pmod, 50 MHz RMII and 125 MHz core clocks, SystemVerilog, C and Python, Vivado 2019.2 and Verilator, one full NASDAQ ITCH trading day for 4 ETFs. Utilization: LUTs 44%, flip-flops 36%, BRAM 60%, DSP 3%, slices 93%. Timing met at 125 MHz: setup WNS +0.144 ns, hold WHS +0.024 ns. Wire to decision latency: average 342 ns (158 ns Ethernet, UDP and ITCH decode, 184 ns order book, strategy and risk), median 304 ns, p99 464 ns.</desc>
+  <style>
+    text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; }
+    .p { fill: #1f2328; }
+    .s { fill: #59636e; }
+    .w { fill: #ffffff; }
+    .ln { stroke: #d1d9e0; }
+    .ok { fill: #1a7f37; }
+    .chk { stroke: #ffffff; }
+    .acc { fill: #2a78d6; }
+    .acc2 { fill: #2a78d6; fill-opacity: 0.32; }
+    .trk { fill: #2a78d6; fill-opacity: 0.16; }
+    .lab { font-size: 14px; }
+    .labb { font-size: 14px; font-weight: 600; }
+    .in { font-size: 13px; font-weight: 600; }
+    .hero { font-size: 36px; font-weight: 600; }
+    .sec { font-size: 13px; font-weight: 600; letter-spacing: 0.02em; }
+    .row { font-size: 14px; }
+    .num { font-size: 14px; font-variant-numeric: tabular-nums; }
+    @media (prefers-color-scheme: dark) {
+      .p { fill: #f0f6fc; }
+      .s { fill: #9198a1; }
+      .ln { stroke: #3d444d; }
+      .ok { fill: #3fb950; }
+      .chk { stroke: #0d1117; }
+      .acc { fill: #3987e5; }
+      .acc2 { fill: #3987e5; fill-opacity: 0.4; }
+      .trk { fill: #3987e5; fill-opacity: 0.22; }
+    }
+  </style>
+
+  <rect class="ln" x="0.5" y="0.5" width="959" height="403" rx="12" fill="none"/>
+
+  <!-- platform -->
+  <text class="sec s" x="32" y="48">Platform</text>
+  <text class="row s" x="32" y="80">Board</text>
+  <text class="row p" x="120" y="80">Digilent Zybo (Rev B), Zynq xc7z010</text>
+  <text class="row s" x="32" y="108">Ethernet</text>
+  <text class="row p" x="120" y="108">LAN8720 RMII Pmod</text>
+  <text class="row s" x="32" y="136">Clocks</text>
+  <text class="row p" x="120" y="136">50 MHz RMII, 125 MHz core</text>
+  <text class="row s" x="32" y="164">Language</text>
+  <text class="row p" x="120" y="164">SystemVerilog, C, Python</text>
+  <text class="row s" x="32" y="192">Tools</text>
+  <text class="row p" x="120" y="192">Vivado 2019.2, Verilator</text>
+  <text class="row s" x="32" y="220">Data</text>
+  <text class="row p" x="120" y="220">Full NASDAQ ITCH day, Jan 30 2020, 4 ETFs</text>
+
+  <line class="ln" x1="440" y1="34" x2="440" y2="226"/>
+
+  <!-- implementation: blue bar width = 280 x percent -->
+  <text class="sec s" x="472" y="48">FPGA implementation</text>
+  <text class="row s" x="472" y="80">LUTs</text>
+  <rect class="trk" x="572" y="72" width="280" height="8" rx="4"/>
+  <rect class="acc" x="572" y="72" width="123" height="8" rx="4"/>
+  <text class="num p" x="928" y="80" text-anchor="end">44%</text>
+  <text class="row s" x="472" y="108">Flip-flops</text>
+  <rect class="trk" x="572" y="100" width="280" height="8" rx="4"/>
+  <rect class="acc" x="572" y="100" width="101" height="8" rx="4"/>
+  <text class="num p" x="928" y="108" text-anchor="end">36%</text>
+  <text class="row s" x="472" y="136">BRAM</text>
+  <rect class="trk" x="572" y="128" width="280" height="8" rx="4"/>
+  <rect class="acc" x="572" y="128" width="168" height="8" rx="4"/>
+  <text class="num p" x="928" y="136" text-anchor="end">60%</text>
+  <text class="row s" x="472" y="164">DSP</text>
+  <rect class="trk" x="572" y="156" width="280" height="8" rx="4"/>
+  <rect class="acc" x="572" y="156" width="8" height="8" rx="4"/>
+  <text class="num p" x="928" y="164" text-anchor="end">3%</text>
+  <text class="row s" x="472" y="192">Slices</text>
+  <rect class="trk" x="572" y="184" width="280" height="8" rx="4"/>
+  <rect class="acc" x="572" y="184" width="260" height="8" rx="4"/>
+  <text class="num p" x="928" y="192" text-anchor="end">93%</text>
+  <text class="row s" x="472" y="220">Timing</text>
+  <circle class="ok" cx="579" cy="215" r="7"/>
+  <path class="chk" d="M575.5 215.2 l2.4 2.4 l4.6 -4.8" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="labb p" x="592" y="220">125 MHz</text>
+  <circle class="ok" cx="675" cy="215" r="7"/>
+  <path class="chk" d="M671.5 215.2 l2.4 2.4 l4.6 -4.8" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="row p" x="688" y="220">Setup +0.144 ns</text>
+  <circle class="ok" cx="807" cy="215" r="7"/>
+  <path class="chk" d="M803.5 215.2 l2.4 2.4 l4.6 -4.8" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="row p" x="820" y="220">Hold +0.024 ns</text>
+
+  <line class="ln" x1="32" y1="252" x2="928" y2="252"/>
+
+  <!-- latency: one bar = 342 ns average, 896 px wide (2.62 px per ns) -->
+  <text class="sec s" x="32" y="288">Wire → decision latency</text>
+  <text class="lab s" x="928" y="288" text-anchor="end">median 304 ns  ·  p99 464 ns</text>
+
+  <text class="hero p" x="30" y="334">342 ns</text>
+  <text class="lab s" x="166" y="334">average</text>
+  <rect class="acc2" x="592" y="322" width="12" height="12" rx="3"/>
+  <text class="lab s" x="610" y="333">Ethernet / UDP / ITCH</text>
+  <rect class="acc" x="775" y="322" width="12" height="12" rx="3"/>
+  <text class="lab s" x="793" y="333">Book, strategy, risk</text>
+
+  <rect class="acc2" x="32" y="350" width="414" height="24" rx="4"/>
+  <text class="in p" x="44" y="366">158 ns</text>
+  <rect class="acc" x="448" y="350" width="480" height="24" rx="4"/>
+  <text class="in w" x="460" y="366">184 ns</text>
+</svg>
