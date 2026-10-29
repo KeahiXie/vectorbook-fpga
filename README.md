@@ -29,6 +29,10 @@ The design focuses on:
 - A future 10 Gb/s market-data receive path
 - FPGA-versus-C++ performance comparison
 
+<p align="center">
+  <img src="media/nanotrader-system.svg" width="750" alt="NanoTrader System Diagram">
+</p>
+
 
 
 ## Roadmap
