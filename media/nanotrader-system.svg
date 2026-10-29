@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="636" viewBox="0 0 960 636" role="img" aria-labelledby="t d">
+  <title id="t">NanoTrader system overview</title>
+  <desc id="d">A MacBook replays ITCH over UDP into a LAN8720 Ethernet Pmod on a Digilent Zybo Rev B. In the PL, the 50 MHz RMII domain holds the Ethernet MAC and UDP filter; an async FIFO crosses into the 125 MHz core domain, which holds the MoldUDP64 and ITCH decoder, the order book, strategy and risk, and a venue stub of order log and latency histograms. Wire to decision is 304 ns median, measured on the board. The bare-metal ARM reads the venue stub over AXI-Lite and prints over UART to a Python dashboard on the lab PC. The PS Ethernet port is unused. Order entry over OUCH is future work.</desc>
+  <style>
+    text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; }
+    .p { fill: #1f2328; }
+    .s { fill: #59636e; }
+    .ln { stroke: #d1d9e0; fill: none; }
+    .bx { fill: #ffffff; stroke: #c4ccd5; stroke-width: 1; }
+    .bxd { fill: #ffffff; stroke: #8c959f; stroke-width: 1; stroke-dasharray: 4 3; }
+    .rg { fill: #f6f8fa; stroke: #d1d9e0; stroke-width: 1; }
+    .ck { fill: none; stroke: #8c959f; stroke-width: 1; stroke-dasharray: 5 4; }
+    .wire { fill: none; stroke: #8c959f; stroke-width: 1.25; }
+    .wired { fill: none; stroke: #8c959f; stroke-width: 1; stroke-dasharray: 4 3; }
+    .hot { fill: none; stroke: #2a78d6; stroke-width: 2; }
+    .acc { fill: #2a78d6; }
+    .tip { fill: #8c959f; }
+    .tiph { fill: #2a78d6; }
+    .t { font-size: 14px; font-weight: 600; }
+    .r { font-size: 12px; }
+    .lab { font-size: 13px; font-weight: 600; }
+    @media (prefers-color-scheme: dark) {
+      .p { fill: #f0f6fc; }
+      .s { fill: #9198a1; }
+      .ln { stroke: #3d444d; }
+      .bx { fill: #0d1117; stroke: #3d444d; }
+      .bxd { fill: #0d1117; stroke: #656c76; }
+      .rg { fill: #151b23; stroke: #3d444d; }
+      .ck, .wire, .wired { stroke: #656c76; }
+      .hot { stroke: #3987e5; }
+      .acc, .tiph { fill: #3987e5; }
+      .tip { fill: #656c76; }
+    }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="tip" d="M0 1 L10 5 L0 9 z"/></marker>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path class="tiph" d="M0 1 L10 5 L0 9 z"/></marker>
+  </defs>
+
+  <rect class="ln" x="0.5" y="0.5" width="959" height="635" rx="12"/>
+
+  <!-- sender -->
+  <rect class="bx" x="33" y="28" width="180" height="56" rx="10"/>
+  <text class="t p" x="123" y="51" text-anchor="middle">MacBook</text>
+  <text class="r s" x="123" y="70" text-anchor="middle">ITCH UDP replay</text>
+  <line class="hot" x1="123" y1="84" x2="123" y2="121" marker-end="url(#ah)"/>
+
+  <!-- board -->
+  <rect class="wired" x="16" y="150" width="928" height="382" rx="14"/>
+  <text class="lab s" x="236" y="174">Digilent Zybo Rev B (Zynq-7010)</text>
+
+  <rect class="bx" x="23" y="124" width="200" height="52" rx="10"/>
+  <text class="t p" x="123" y="145" text-anchor="middle">Ethernet port (LAN8720)</text>
+  <text class="r s" x="123" y="164" text-anchor="middle">Pmod · RMII</text>
+
+  <!-- PL -->
+  <rect class="rg" x="32" y="192" width="896" height="220" rx="12"/>
+  <text class="lab p" x="146" y="214">PL · data path</text>
+
+  <rect class="ck" x="42" y="228" width="213" height="126" rx="10"/>
+  <text class="r s" x="135" y="246">50 MHz · RMII</text>
+  <rect class="ck" x="263" y="228" width="655" height="126" rx="10"/>
+  <text class="r s" x="510" y="246">125 MHz · core clock</text>
+
+  <line class="hot" x1="123" y1="176" x2="123" y2="259" marker-end="url(#ah)"/>
+
+  <rect class="bx" x="53" y="262" width="140" height="76" rx="10"/>
+  <text class="t p" x="123" y="287" text-anchor="middle">Ethernet + UDP</text>
+  <text class="r s" x="123" y="307" text-anchor="middle">MAC, CRC check</text>
+  <text class="r s" x="123" y="323" text-anchor="middle">UDP filter</text>
+
+  <rect class="bx" x="214" y="262" width="90" height="76" rx="10"/>
+  <text class="t p" x="259" y="287" text-anchor="middle">Async FIFO</text>
+  <text class="r s" x="259" y="307" text-anchor="middle">clock</text>
+  <text class="r s" x="259" y="323" text-anchor="middle">crossing</text>
+
+  <rect class="bx" x="325" y="262" width="140" height="76" rx="10"/>
+  <text class="t p" x="395" y="287" text-anchor="middle">Feed decode</text>
+  <text class="r s" x="395" y="307" text-anchor="middle">MoldUDP64</text>
+  <text class="r s" x="395" y="323" text-anchor="middle">ITCH decoder</text>
+
+  <rect class="bx" x="486" y="262" width="126" height="76" rx="10"/>
+  <text class="t p" x="549" y="287" text-anchor="middle">Order book</text>
+  <text class="r s" x="549" y="307" text-anchor="middle">order store</text>
+  <text class="r s" x="549" y="323" text-anchor="middle">price ladder</text>
+
+  <rect class="bx" x="633" y="262" width="126" height="76" rx="10"/>
+  <text class="t p" x="696" y="287" text-anchor="middle">Strategy</text>
+  <text class="r s" x="696" y="307" text-anchor="middle">spread, imbalance</text>
+  <text class="r s" x="696" y="323" text-anchor="middle">risk checks</text>
+
+  <rect class="bx" x="780" y="262" width="126" height="76" rx="10"/>
+  <text class="t p" x="843" y="287" text-anchor="middle">Venue stub</text>
+  <text class="r s" x="843" y="307" text-anchor="middle">order log +</text>
+  <text class="r s" x="843" y="323" text-anchor="middle">latency histograms</text>
+
+  <line class="hot" x1="193" y1="300" x2="212" y2="300" marker-end="url(#ah)"/>
+  <line class="hot" x1="304" y1="300" x2="323" y2="300" marker-end="url(#ah)"/>
+  <line class="hot" x1="465" y1="300" x2="484" y2="300" marker-end="url(#ah)"/>
+  <line class="hot" x1="612" y1="300" x2="631" y2="300" marker-end="url(#ah)"/>
+  <line class="hot" x1="759" y1="300" x2="778" y2="300" marker-end="url(#ah)"/>
+
+  <!-- latency -->
+  <path class="hot" style="stroke-width:1" d="M53 366 V372 H759 V366"/>
+  <text class="lab acc" x="406" y="394" text-anchor="middle">wire → decision: 304 ns median</text>
+
+  <!-- future order entry -->
+  <line class="wired" x1="843" y1="260" x2="843" y2="46" marker-end="url(#a)"/>
+  <text class="r s" x="843" y="34" text-anchor="middle">order entry via OUCH (future)</text>
+
+  <!-- PS -->
+  <rect class="rg" x="32" y="432" width="896" height="84" rx="12"/>
+  <text class="lab p" x="216" y="454">PS · control plane</text>
+
+  <rect class="bxd" x="4" y="450" width="196" height="52" rx="10"/>
+  <text class="t p" x="102" y="471" text-anchor="middle">Ethernet port (RJ45)</text>
+  <text class="r s" x="102" y="490" text-anchor="middle">PS GEM · unused</text>
+  <line class="wired" x1="200" y1="476" x2="418" y2="476"/>
+
+  <rect class="bx" x="420" y="448" width="240" height="56" rx="10"/>
+  <text class="t p" x="540" y="471" text-anchor="middle">ARM Cortex-A9</text>
+  <text class="r s" x="540" y="490" text-anchor="middle">bare-metal C, polls registers</text>
+
+  <path class="wire" d="M843 338 V476 H663" marker-end="url(#a)"/>
+  <text class="r s" x="835" y="426" text-anchor="end">AXI-Lite</text>
+
+  <!-- dashboard -->
+  <line class="wire" x1="540" y1="504" x2="540" y2="563" marker-end="url(#a)"/>
+  <text class="r s" x="552" y="550">UART</text>
+  <rect class="bx" x="420" y="566" width="240" height="52" rx="10"/>
+  <text class="t p" x="540" y="588" text-anchor="middle">Lab PC</text>
+  <text class="r s" x="540" y="607" text-anchor="middle">Python dashboard</text>
+
+  <!-- key -->
+  <line class="hot" x1="36" y1="578" x2="68" y2="578"/>
+  <text class="r s" x="76" y="582">market data path</text>
+  <line class="wired" x1="36" y1="600" x2="68" y2="600"/>
+  <text class="r s" x="76" y="604">unused / future</text>
+</svg>
